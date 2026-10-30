@@ -1,0 +1,94 @@
+---
+// Страницы сайта по сущностям – перенос с rozalii (← кабинет-стандарт Milovini, эталон Elite Rose; группы – EV SIBIR
+// admin.py GROUPS): Главная, клубы (Империал, Абрикосово, Адмирал), общие страницы сети, юридические, переадресации.
+// Группы сворачиваются, состояние помнится (правило владельца 24.10.2026). Каталога у Balance нет – список строится
+// из перенесённых с Тильды src/data/pages (npm run port), админка их не правит.
+import Admin from '../../layouts/Admin.astro';
+import { u } from '../../lib/url';
+
+type Page = { path: string; head?: string; redirect?: string };
+const files = Object.values(import.meta.glob<Page>('../../data/pages/*.json', { eager: true, import: 'default' }));
+const titleOf = (f: Page) => f.head?.match(/<title>([^<]*)<\/title>/)?.[1].replace(/\s+/g, ' ').trim() || '/' + f.path;
+const site = (p: string) => new URL(u(p), Astro.site).href;
+// Карточка страницы (scripts/page-cards.py, как у EV SIBIR): /admin/page/<адрес страницы>/
+const card_ = (path: string) => u('/admin/page' + (path === '/' ? '/' : path.replace(/\/?$/, '/')));
+
+const LEGAL = /^(dogovor|oferta|pravila|privacy|rekvizit|security|oplata|loyalty$|position$|metrika$)/;
+const clubOf = (p: string) =>
+  /abr|abricosovo|abrikosovo/.test(p) ? 'abricosovo' : /admiral|_adm$/.test(p) ? 'admiral' : /^(imperial|lk$|spa\/price$|day$|contacts$|job$|kids-uslugi$|cafe$)/.test(p) ? 'imperial' : '';
+const HUBS = new Set(['imperial', 'abricosovo', 'admiral']);
+const kindOf = (p: string) => (HUBS.has(p) ? 'Хаб клуба' : LEGAL.test(p) ? 'Юридическая' : 'Страница');
+const rows = files
+  .filter((f) => !f.redirect && f.path !== '')
+  .map((f) => ({ path: '/' + f.path, name: titleOf(f), kind: kindOf(f.path), club: clubOf(f.path), legal: LEGAL.test(f.path) }))
+  // у Тильды страницы без суффикса (contacts, job, cafe…) – Империала, у других клубов те же с _abricosovo / _admiral
+  // хаб клуба – первым в своей группе, дальше по адресу
+  .sort((a, b) => Number(b.kind === 'Хаб клуба') - Number(a.kind === 'Хаб клуба') || a.path.localeCompare(b.path));
+const home = files.find((f) => f.path === '');
+const redirects = files.filter((f) => f.redirect).sort((a, b) => a.path.localeCompare(b.path));
+const groups = [
+  { key: 'imperial', name: 'Клуб «Империал» (Краснодар)', list: rows.filter((r) => !r.legal && r.club === 'imperial') },
+  { key: 'abricosovo', name: 'Клуб «Абрикосово» (Краснодар)', list: rows.filter((r) => !r.legal && r.club === 'abricosovo') },
+  { key: 'admiral', name: 'Клуб «Адмирал» (Туапсе)', list: rows.filter((r) => !r.legal && r.club === 'admiral') },
+  { key: 'common', name: 'Общие страницы сети', list: rows.filter((r) => !r.legal && !r.club) },
+  { key: 'legal', name: 'Юридические страницы', list: rows.filter((r) => r.legal) },
+];
+const total = 1 + rows.length;
+const CLUB = { imperial: 'Империал', abricosovo: 'Абрикосово', admiral: 'Адмирал' } as Record<string, string>;
+---
+<Admin title="Страницы сайта" active="pages">
+  <style is:global>
+    .pgroup{display:flex;align-items:center;gap:6px;width:100%;border:0;border-top:1px solid #eceeed;text-align:left;cursor:pointer;font-family:inherit}
+    .pgroup::before{content:'';display:inline-block;border-left:5px solid #55605d;border-top:4px solid transparent;border-bottom:4px solid transparent;transform:rotate(90deg);transition:transform .15s}
+    .pgrp.shut .pgroup::before{transform:none}
+    .pgrp.shut>:not(.pgroup){display:none}
+  </style>
+  <div class="tools">
+    <h1>Страницы сайта</h1>
+    <span class="muted">{total} страниц · ещё {redirects.length} старых адресов переадресуют на новые</span>
+    <a class="btn" href={u('/')} target="_blank">Открыть сайт ↗</a>
+  </div>
+  <div class="pages">
+    <div class="phead"><span></span><span>Страница</span><span>Адрес</span><span style="text-align:right">Сущность</span></div>
+
+    <section class="pgrp" data-g="home">
+      <button type="button" class="pgroup">Главная <span>1</span></button>
+      <div class="prow">
+        <span></span>
+        <div><a class="pname pcard" href={card_('/')}>Главная</a><div class="muted" style="font-size:12px">{home && titleOf(home)}</div></div>
+        <a class="purl" href={u('/')} target="_blank">{site('/')}</a>
+        <span class="pkind">Главная</span>
+      </div>
+    </section>
+
+    {groups.map((g) => (
+      <section class="pgrp" data-g={g.key}>
+        <button type="button" class="pgroup">{g.name} <span>{g.list.length}</span></button>
+        {g.list.map((t) => (
+          <div class="prow"><span></span><div><a class="pname pcard" href={card_(t.path)}>{t.name}</a>{g.key === 'legal' && t.club && <div class="muted" style="font-size:12px">{CLUB[t.club]}</div>}</div><a class="purl" href={u(t.path)} target="_blank">{site(t.path)}</a><span class="pkind">{t.kind}</span></div>
+        ))}
+      </section>
+    ))}
+
+    <section class="pgrp" data-g="redirects">
+      <button type="button" class="pgroup">Переадресации со старых адресов <span>{redirects.length}</span></button>
+      {redirects.map((r) => (
+        <div class="prow"><span></span><div><span class="pname">/{r.path}</span><div class="muted" style="font-size:12px">→ {r.redirect}</div></div><a class="purl" href={u('/' + r.path)} target="_blank">{site('/' + r.path)}</a><span class="pkind">Техническая</span></div>
+      ))}
+    </section>
+  </div>
+  <script is:inline>
+    (function () {
+      var K = 'bf_admin_groups', shut = {};
+      try { shut = JSON.parse(localStorage.getItem(K) || '{}'); } catch (e) {}
+      document.querySelectorAll('.pgrp').forEach(function (g) {
+        var key = g.getAttribute('data-g');
+        if (shut[key]) g.classList.add('shut');
+        g.querySelector('.pgroup').addEventListener('click', function () {
+          shut[key] = g.classList.toggle('shut');
+          try { localStorage.setItem(K, JSON.stringify(shut)); } catch (e) {}
+        });
+      });
+    })();
+  </script>
+</Admin>
