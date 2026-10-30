@@ -3,3 +3,7 @@ dist/
 .astro/
 reference/
 .DS_Store
+
+# Аналитика клиента – только локально, в репо публичный (админка 30.10)
+data/
+src/data/analytics/
