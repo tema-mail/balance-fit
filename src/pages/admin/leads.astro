@@ -1,0 +1,19 @@
+---
+/** Админка → Заявки (остров Leads; доска – эталон ALEX KROWN / EV, перенос с rozalii). Приёмника нет – пример подписан
+    «Пример:» и собран по настоящим формам сайта: всплывающая «Обратный звонок» (t702, на 58 страницах), формы записи и квиз
+    (цели Метрики 71090701 «Заявка / Тильда», «Заявка / Квиз», «Звонок Calltouch»). Услуги и клубы – реальные страницы сайта. */
+import Admin from '../../layouts/Admin.astro';
+import Leads, { type Lead } from '../../islands/admin/Leads';
+const at = (d: number, h: number) => new Date(Date.UTC(2026, 9, d, h)).toISOString();
+const it = (title: string, category: string) => [{ uid: '', title, category, qty: 1, price: null }];
+const sample: Lead[] = [
+  { id: 'BF-1029-01', createdAt: at(29, 6), name: 'Пример: Ирина', phone: '+7 900 000-00-41', form: 'Обратный звонок', page: '/imperial/cards', stage: 'новая', source: 'Поиск Яндекса', message: 'Интересует годовая клубная карта, перезвонить после 18:00', items: it('Клубная карта', 'Империал'), category: 'Империал' },
+  { id: 'BF-1028-02', createdAt: at(28, 9), name: 'Пример: Дмитрий', phone: '+7 900 000-00-42', form: 'Заявка на сайте', page: '/abricosovo', stage: 'в работе', source: 'Реклама Яндекса', message: 'Гостевой визит в субботу', items: it('Гостевой визит', 'Абрикосово'), category: 'Абрикосово' },
+  { id: 'BF-1027-03', createdAt: at(27, 12), name: 'Пример: Ольга', phone: '+7 900 000-00-43', form: 'Квиз', page: '/kids_abricosovo', stage: 'выполнена', source: 'Прямые заходы', message: 'Ребёнку 7 лет, плавание', items: it('Детский фитнес', 'Абрикосово'), category: 'Абрикосово' },
+  { id: 'BF-1026-04', createdAt: at(26, 8), name: 'Пример: Анна', phone: '+7 900 000-00-44', form: 'Обратный звонок', page: '/spa/price', stage: 'в работе', source: 'Поиск Google', message: 'Запись на массаж', items: it('Спа и салон красоты', 'Империал'), category: 'Империал' },
+  { id: 'BF-1025-05', createdAt: at(25, 7), name: 'Пример: Сергей', phone: '+7 900 000-00-45', form: 'Заявка на сайте', page: '/admiral', stage: 'отказ', source: 'Карты Яндекса', message: 'Нужен клуб в Краснодаре, а не в Туапсе', items: it('Клубная карта', 'Адмирал'), category: 'Адмирал' },
+];
+---
+<Admin title="Заявки" active="leads">
+  <Leads client:load leads={[]} sample={sample} />
+</Admin>
