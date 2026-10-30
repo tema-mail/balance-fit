@@ -10,7 +10,9 @@
     "port": "node scripts/tilda-port.mjs"
   },
   "dependencies": {
-    "astro": "7.3.8"
+    "@astrojs/preact": "^6.1.1",
+    "astro": "7.3.8",
+    "preact": "^10.29.8"
   },
   "devDependencies": {
     "playwright": "1.64.0",
