@@ -5,14 +5,19 @@
       логином и паролем владельца в public/admin/vault/<name>.json;
     – публичная сборка рисует пустое место: после входа в кабинет (scripts/lock-admin.mjs) браузер берёт
       тот же логин и пароль из sessionStorage и расшифровывает данные сам – второй пароль не нужен. */
+import fs from 'node:fs';
 import { u } from '../../lib/url';
-interface Props { name: string; open: boolean }
-const { name, open } = Astro.props;
+interface Props { name: string; open: boolean; empty?: string }
+const { name, open, empty = 'Данные раздела ещё не собраны.' } = Astro.props;
+// зашифрованной выгрузки нет – не запрашиваем файл (иначе 404 в консоли), а честно пишем почему (приёмка 30.10.2026)
+const sealed = fs.existsSync(`public/admin/vault/${name}.json`);
 ---
 
 {
   open ? (
     <div id="vault" data-vault={name}><slot /></div><div id="vault-end" hidden></div>
+  ) : !sealed ? (
+    <div id="vault" data-vault={name}><p class="muted" role="status" style="text-align:center;padding:40px 0;max-width:60ch;margin:0 auto">{empty}</p></div>
   ) : (
     <div id="vault" data-vault={name} data-locked data-src={u(`/admin/vault/${name}.json`)}>
       <p class="muted vault-msg" role="status" style="text-align:center;padding:40px 0">Открываю данные…</p>

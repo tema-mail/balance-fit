@@ -11,7 +11,7 @@ const ev = Object.values(evFiles)[0];
 
 
 <Admin title="Метрика" active="metrika">
-  <Vault name="metrika" open={!!ev}>
+  <Vault name="metrika" open={!!ev} empty="Цифры Метрики ещё не собраны: 30.10.2026 API Метрики ответил 429 – квота запросов на день исчерпана. Раздел соберётся следующей выгрузкой (счётчик 71090701).">
     {ev && Object.entries(ev.views).map(([k, html]) => <div class="mk-view" data-view={k} hidden={k !== 'ind:month'} set:html={html} />)}
   </Vault>
 </Admin>
