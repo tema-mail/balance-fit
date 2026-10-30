@@ -1,0 +1,59 @@
+---
+/** Админка → Метрика. Раздел «Метрика и каналы» кабинета EV SIBIR один в один: его же код собирает цифры и разметку
+    (scripts/metrika-ev.py → src/data/analytics/metrika-ev.json), обёртка и переключение вкладок – с ALEX KROWN.
+    Товарного спроса у Balance нет (не магазин). Цифры клиента: в публичной сборке раздел закрыт сейфом (Vault). */
+import Admin from '../../layouts/Admin.astro';
+import Vault from '../../components/admin/Vault.astro';
+type Ev = { fetched_at: string; views: Record<string, string> };
+const evFiles = import.meta.glob<Ev>('../../data/analytics/metrika-ev.json', { eager: true, import: 'default' });
+const ev = Object.values(evFiles)[0];
+---
+
+
+<Admin title="Метрика" active="metrika">
+  <Vault name="metrika" open={!!ev}>
+    {ev && Object.entries(ev.views).map(([k, html]) => <div class="mk-view" data-view={k} hidden={k !== 'ind:month'} set:html={html} />)}
+  </Vault>
+</Admin>
+
+<style is:global>
+  .mk-later{margin:0}
+</style>
+
+<script>
+  // Ссылки ведут на /admin/metrika?v=…&p=…|c=… – все вкладки уже на странице, показываем нужную.
+  const keyOf = (q: URLSearchParams) =>
+    (q.get('v') === 'cmp' || (!q.get('v') && q.get('c')) ? 'cmp:' + (q.get('c') || 'yoy') : 'ind:' + (q.get('p') || 'month'));
+  function show(key: string) {
+    const views = document.querySelectorAll<HTMLElement>('.mk-view');
+    if (![...views].some((v) => v.dataset.view === key)) return false;
+    views.forEach((v) => (v.hidden = v.dataset.view !== key));
+    return true;
+  }
+  // данные уже на странице (сборка с выгрузкой) – показать сразу; в публичной – после расшифровки (vault:open)
+  const fromUrl = () => show(keyOf(new URLSearchParams(location.search)));
+  fromUrl();
+  document.addEventListener('vault:open', fromUrl);
+  document.addEventListener('click', (e) => {
+    const a = (e.target as Element).closest?.('a');
+    const href = a?.getAttribute('href') || '';
+    if (href.startsWith('/admin/metrika')) {
+      e.preventDefault();
+      const q = new URLSearchParams(href.split('?')[1] || '');
+      if (show(keyOf(q))) history.replaceState(null, '', '?' + q.toString());
+    } else if (href.startsWith('#')) {
+      const target = document.querySelector(`.mk-view:not([hidden]) ${href}`);
+      if (target) { e.preventDefault(); target.scrollIntoView({ behavior: 'smooth' }); }
+    }
+  });
+  // «Обновить» в EV – запрос к серверу админки; у админки Balance сервера нет, цифры собираются с компьютера
+  document.addEventListener('submit', (e) => {
+    const f = e.target as HTMLFormElement;
+    if (!f.classList?.contains('mk-refresh')) return;
+    e.preventDefault();
+    const bar = f.closest('.mk-bar');
+    if (bar && !bar.parentElement!.querySelector('.mk-later')) {
+      bar.insertAdjacentHTML('afterend', '<div class="mk-note mk-later">Своего сервера у админки пока нет, поэтому кнопка не опрашивает Метрику сама. Свежие цифры собираются командой на компьютере: скажите Claude «обнови метрику Balance». Когда появится сервер, кнопка заработает как в EV.</div>');
+    }
+  });
+</script>
