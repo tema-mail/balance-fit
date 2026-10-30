@@ -5,7 +5,7 @@
   "private": true,
   "scripts": {
     "dev": "astro dev",
-    "build": "astro build",
+    "build": "astro build && python3 scripts/page-cards.py dist",
     "preview": "astro preview",
     "port": "node scripts/tilda-port.mjs"
   },
