@@ -1,0 +1,43 @@
+---
+/** Каркас админки Balance – перенос кабинета rozalii (← стандарт Milovini): вкладки и шапка как у Elite Rose /
+    ALEX KROWN v1, адрес сайта справа, «Выйти». Весь кабинет закрыт логином и паролем (scripts/lock-admin.mjs при
+    выкладке). Закрыт от поиска. Сайт – визитка сети клубов с заявками (разведка 30.10.2026): товаров и «Продаж» нет,
+    Точки А в интерфейсе нет; Позиции и Рекомендации – закрытые разделы по стандарту. */
+import '../styles/admin.css';
+import { u } from '../lib/url';
+type Tab = 'pages' | 'leads' | 'metrika' | 'seo' | 'positions' | 'recommendations';
+interface Props { title: string; active: Tab }
+const { title, active } = Astro.props;
+const site = new URL(u('/'), Astro.site).href;
+const tabs: [Tab, string, string, string][] = [
+  ['pages', '/admin/', 'Страницы сайта', ''],
+  ['leads', '/admin/leads/', 'Заявки', ''],
+  ['metrika', '/admin/metrika/', 'Метрика', ''],
+  ['seo', '/admin/seo/', 'SEO-аналитика', ''],
+  ['positions', '/admin/positions/', 'Позиции', '🔒'],
+  ['recommendations', '/admin/recommendations/', 'Рекомендации', '🔒'],
+];
+const icon = u('/_t/static/tild3539-3835-4330-a130-613337626539/favicon.ico');
+---
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex, nofollow" />
+    <title>{title} – админка Balance</title>
+    <link rel="icon" href={icon} type="image/x-icon" />
+  </head>
+  <body class="adm">
+    <nav class="topnav" aria-label="Разделы админки">
+      <span class="brand"><img src={icon} alt="" />BALANCE</span>
+      {tabs.map(([key, href, label, n]) => (
+        <a class:list={['tab', { on: active === key }]} href={u(href)}>{label}{n && (n === '🔒' ? <span class="lk" aria-label="раздел закрыт"> 🔒</span> : <span class="n">{n}</span>)}</a>
+      ))}
+      <span class="site">Сайт: <a href={site} target="_blank" rel="noopener">{site.replace(/^https?:\/\//, '')}</a></span>
+      {/* выход из кабинета (вход – scripts/lock-admin.mjs), стирает оба входа – как «Выйти» у EV / ALEX KROWN */}
+      <button type="button" class="logout" onclick="try{sessionStorage.removeItem('bf_admin_auth');localStorage.removeItem('bf_admin_keep')}catch(e){};location.reload()" style="background:none;border:0;color:rgba(255,255,255,.75);font:inherit;font-size:13px;cursor:pointer;padding:0">Выйти</button>
+    </nav>
+    <main><slot /></main>
+  </body>
+</html>
