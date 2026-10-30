@@ -1,0 +1,13 @@
+---
+/** Админка → SEO-аналитика. Реестр и стили – код EV SIBIR (seo_map) через scripts/seo-ev.py, сверху – брендовый спрос по
+    клубам и топы запросов (владелец 30.10.2026: «брендовые запросы… поднести наверх»). Цифры клиента: в публичной сборке
+    раздел закрыт сейфом (Vault) – расшифровывается логином и паролем кабинета. */
+import Admin from '../../layouts/Admin.astro';
+import Vault from '../../components/admin/Vault.astro';
+type Seo = { fetched_at: string; html: string };
+const files = import.meta.glob<Seo>('../../data/analytics/seo-ev.json', { eager: true, import: 'default' });
+const seo = Object.values(files)[0];
+---
+<Admin title="SEO-аналитика" active="seo">
+  <Vault name="seo" open={!!seo}>{seo && <Fragment set:html={seo.html} />}</Vault>
+</Admin>
