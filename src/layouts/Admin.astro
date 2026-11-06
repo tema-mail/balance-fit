@@ -5,12 +5,13 @@
     Точки А в интерфейсе нет; Позиции и Рекомендации – закрытые разделы по стандарту. */
 import '../styles/admin.css';
 import { u } from '../lib/url';
-type Tab = 'pages' | 'leads' | 'metrika' | 'seo' | 'positions' | 'recommendations';
+type Tab = 'pages' | 'editor' | 'leads' | 'metrika' | 'seo' | 'positions' | 'recommendations';
 interface Props { title: string; active: Tab }
 const { title, active } = Astro.props;
 const site = new URL(u('/'), Astro.site).href;
 const tabs: [Tab, string, string, string][] = [
   ['pages', '/admin/', 'Страницы сайта', ''],
+  ['editor', '/admin/editor/?page=/admiral/', 'Редактор', ''],
   ['leads', '/admin/leads/', 'Заявки', ''],
   ['metrika', '/admin/metrika/', 'Метрика', ''],
   ['seo', '/admin/seo/', 'SEO-аналитика', ''],

@@ -1,0 +1,12 @@
+---
+/** Админка → Редактор (модуль site-editor, уровень 1): текст, картинки, ссылки кнопок на странице сайта. Сетка закрыта.
+    Правки – editor/edits.json, накладываются при сборке (`site-editor build`). На стенде публикация – коммит ключом GitHub. */
+import Admin from '../../layouts/Admin.astro';
+import { u } from '../../lib/url';
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+---
+<Admin title="Редактор" active="editor">
+  <link rel="stylesheet" href={u('/admin/editor/assets/editor.css')} />
+  <div id="site-editor" data-repo="tema-mail/balance-fit" data-branch="main" data-edits="editor/edits.json" data-uploads="public/uploads/editor" data-base={base}></div>
+  <script is:inline src={u('/admin/editor/assets/editor.js')}></script>
+</Admin>
