@@ -48,8 +48,5 @@ jobs:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
-      # сайт большой (222 МБ): синхронизация файлов на Pages может идти дольше стандартных 10 минут
       - id: deployment
         uses: actions/deploy-pages@v4
-        with:
-          timeout: 1800000
