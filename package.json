@@ -7,7 +7,7 @@
     "dev": "astro dev",
     "build": "astro build && site-editor build && python3 scripts/page-cards.py dist",
     "preview": "astro preview",
-    "port": "node scripts/tilda-port.mjs"
+    "port": "node scripts/tilda-port.mjs && python3 scripts/strip-whatsapp.py"
   },
   "dependencies": {
     "@astrojs/preact": "^6.1.1",

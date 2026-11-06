@@ -8,7 +8,7 @@
 - Подход «как экспорт Тильды»: исходный HTML страниц (до JS) + рантайм Тильды, CSS, шрифты и картинки
   лежат локально в `public/`. Своих плагинов на jQuery (Nolim, слайдеры из Zero, GL20, zeroaccordmax) не переписываем.
 - `npm run port` – `scripts/tilda-port.mjs`: обходит сайт (sitemap + ссылки), пишет `src/data/pages/*.json`,
-  качает ресурсы в `public/_t/` (`scripts/tilda-assets.mjs`). Кэш скачанного – `node_modules/.cache/tilda-port`.
+  качает ресурсы в `public/_t/` (`scripts/tilda-assets.mjs`), затем `scripts/strip-whatsapp.py` убирает WhatsApp: снятие с Тильды его возвращает (владелец 07.11.2026: не нужен нигде). Кэш скачанного – `node_modules/.cache/tilda-port`.
 - Маршрут `src/pages/[...slug].astro` собирает страницу из JSON; редиректы Тильды – meta refresh.
 - Подпапка Pages (`/balance-fit`) задаётся `PUBLIC_BASE` при сборке, пути в данных корневые.
 - Публикация: push в main → Actions → https://tema-mail.github.io/balance-fit/ (закрыто от индексации).
