@@ -1,7 +1,17 @@
 {
   "name": "site-editor",
   "version": "0.1.0",
+  "description": "Редактор сайта на странице: текст, картинки, ссылки кнопок. Сетка закрыта.",
   "type": "module",
   "private": true,
-  "bin": { "site-editor": "bin/site-editor.mjs" }
+  "bin": { "site-editor": "bin/site-editor.mjs" },
+  "files": ["bin", "lib", "assets"],
+  "scripts": {
+    "test": "node --test test/",
+    "bundle": "node scripts/bundle.mjs"
+  },
+  "devDependencies": {
+    "esbuild": "^0.25.0",
+    "preact": "^10.29.8"
+  }
 }
