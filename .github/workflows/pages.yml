@@ -24,6 +24,8 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci
+      # тесты замка админки (оба входа открывают, неверный – нет)
+      - run: npm test
       # сайт живёт в подпапке tema-mail.github.io/balance-fit/
       - run: npm run build
         env:
@@ -34,7 +36,8 @@ jobs:
       # вся админка (/admin) – за логином и паролем; без секретов шаг падает и открытая админка не публикуется
       - name: Закрыть админку логином и паролем
         run: node scripts/lock-admin.mjs
-        env: { ADMIN_LOGIN: '${{ secrets.ADMIN_LOGIN }}', ADMIN_PASS: '${{ secrets.ADMIN_PASS }}' }
+        # второй вход – СВЕРХ админ Артёма; нет секретов – один вход владельца и предупреждение
+        env: { ADMIN_LOGIN: '${{ secrets.ADMIN_LOGIN }}', ADMIN_PASS: '${{ secrets.ADMIN_PASS }}', SVERH_LOGIN: '${{ secrets.SVERH_LOGIN }}', SVERH_PASS: '${{ secrets.SVERH_PASS }}' }
       - name: Запретить Jekyll обрабатывать сборку
         run: touch dist/.nojekyll
       - uses: actions/upload-pages-artifact@v3
